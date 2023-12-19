@@ -75,19 +75,30 @@ def rfc_2822_format(date_str):
     d = datetime.datetime.strptime(date_str, '%Y-%m-%d')
     return d.strftime('%a, %d %b %Y %H:%M:%S +0000')
 
-
+date_pat = re.compile(r'(19|20)\d{2}-[01][012]-[0123]\d')
+md_ext_set = set('md mkd mkdn mdown markdown'.split())
 def read_content(filename):
     """Read content and metadata from file into a dictionary."""
     # Read file content.
     text = fread(filename)
 
     # Read metadata and save it in a dictionary.
-    date_slug = os.path.basename(filename).split('.')[0]
-    match = re.search(r'^(?:(\d\d\d\d-\d\d-\d\d)-)?(.+)$', date_slug)
-    content = {
-        'date': match.group(1) or '1970-01-01',
-        'slug': match.group(2),
-    }
+    # date_slug = os.path.basename(filename).split('.')[0]
+    # match = re.search(r'^(?:(\d\d\d\d-\d\d-\d\d)-)?(.+)$', date_slug)
+    basename = os.path.basename(filename)
+    name_node, name_ext = os.path.splitext(basename)
+    date_match = date_pat.search(name_node)
+    content = {'date': '1970-01-01', 'slug': name_node}
+    if date_match:
+        span = date_match.span()
+        date_str = name_node[span[0]:span[1]]
+        content['date'] = date_str
+        if span[0] == 0:
+            slug_str = name_node[span[1]+1:]
+        else:
+            slug_str = name_node[0: span[0]-1]
+        if slug_str:
+            content['slug'] = slug_str
 
     # Read headers.
     end = 0
@@ -98,14 +109,18 @@ def read_content(filename):
     text = text[end:]
 
     # Convert Markdown content to HTML.
-    if filename.endswith(('.md', '.mkd', '.mkdn', '.mdown', '.markdown')):
+    file_node, file_ext = os.path.splitext(filename)
+    if file_ext in md_ext_set:
         try:
             if _test == 'ImportError':
                 raise ImportError('Error forced by test')
-            import commonmark
-            text = commonmark.commonmark(text)
+            import markdown # commonmark
+            parser = markdown.Markdown(extensions = ['meta'])
+            metadata = parser.Meta
+            content = {**content, **metadata} # merge
+            text = parser.convert(text)
         except ImportError as e:
-            log('WARNING: Cannot render Markdown in {}: {}', filename, str(e))
+            log('WARNING: ImportError makes unable to render markdown in {}: {}', filename, str(e))
 
     # Update the dictionary with content and RFC 2822 date.
     content.update({
