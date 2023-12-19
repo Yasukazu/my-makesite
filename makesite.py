@@ -88,7 +88,8 @@ def read_content(filename):
     basename = os.path.basename(filename)
     name_node, name_ext = os.path.splitext(basename)
     date_match = date_pat.search(name_node)
-    content = {'date': '1970-01-01', 'slug': name_node}
+    today = datetime.date.today()
+    content = {'date': today.isoformat(), 'slug': name_node}
     if date_match:
         span = date_match.span()
         date_str = name_node[span[0]:span[1]]
@@ -110,15 +111,19 @@ def read_content(filename):
 
     # Convert Markdown content to HTML.
     file_node, file_ext = os.path.splitext(filename)
-    if file_ext in md_ext_set:
+    if file_ext[1:] in md_ext_set:
         try:
             if _test == 'ImportError':
                 raise ImportError('Error forced by test')
             import markdown # commonmark
             parser = markdown.Markdown(extensions = ['meta'])
-            metadata = parser.Meta
-            content = {**content, **metadata} # merge
             text = parser.convert(text)
+            metadata = parser.Meta
+            if metadata:
+	            for key,value in metadata.items():
+	                if len(value) == 1:
+	                    metadata[key] = value[0]
+	            content = {**content, **metadata} # merge
         except ImportError as e:
             log('WARNING: ImportError makes unable to render markdown in {}: {}', filename, str(e))
 
