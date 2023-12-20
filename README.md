@@ -1,4 +1,15 @@
-makesite.py
+my-makesite : a fork of makesite
+## Differences
+
+1. `python-markdown`(`pip install markdown`) as the markdown converter
+#### front matter format is '---' fenced YAML like:
+<pre>
+---
+title: 'a title'
+---
+</pre>
+Originally, meta data are embed in HTML comment (like TURBO PASCAL compiler)
+`makesite.py` is the single python script to generate a site(aka collection of HTML pages) into `_site` folder
 ===========
 
 Take full control of your static website/blog generation by writing your
@@ -17,16 +28,18 @@ Python. That's right! Reinvent the wheel!
 Contents
 --------
 
-* [Introduction](#introduction)
-* [But Why?](#but-why)
-* [Get Started](#get-started)
-* [The Code](#the-code)
-* [Layout](#layout)
-* [Content](#content)
-* [FAQ](#faq)
-* [Credits](#credits)
-* [License](#license)
-* [Support](#support)
+- [`makesite.py` is the single python script to generate a site(aka collection of HTML pages) into `_site` folder](#makesitepy-is-the-single-python-script-to-generate-a-siteaka-collection-of-html-pages-into-_site-folder)
+  - [Contents](#contents)
+  - [Introduction](#introduction)
+  - [But Why?](#but-why)
+  - [Get Started](#get-started)
+  - [The Code](#the-code)
+  - [Layout](#layout)
+  - [Content](#content)
+  - [FAQ](#faq)
+  - [Credits](#credits)
+  - [License](#license)
+  - [Support](#support)
 
 
 Introduction
