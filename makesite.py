@@ -138,9 +138,10 @@ def read_content(filename):
 
 def render(template, **params):
     """Replace placeholders in template with values from params."""
-    return re.sub(r'{{\s*([^}\s]+)\s*}}',
+    rendered = re.sub(r'{{\s*([^}\s]+)\s*}}',
                   lambda match: str(params.get(match.group(1), match.group(0))),
                   template)
+    return rendered
 
 
 def make_pages(src, dst, layout, **params):
@@ -194,7 +195,7 @@ def main():
 
     # Default parameters.
     params = {
-        'base_path': '',
+        'base_path': '/make-site/_site',
         'subtitle': 'Lorem Ipsum',
         'author': 'Admin',
         'site_url': 'http://localhost:8000',
