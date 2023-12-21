@@ -1,5 +1,22 @@
 # How to set configuration and to write content files
+**On the way of renovation**
  ## Configuration
+  ### `params.json`
+  - LAN server: {"base_path": "/_site","site_url": "http://192.168.2.19:8000/_site"} # set as LAN IP address
+  - web hosting server {"base_path": "/makesite/_site","site_url": "https://you_domain.com/makesite/"} # assuming web hosting public folder has the `makesite` directory
+
+  #### How to check the generated site with your LAN server:
+
+    After running in `~/makesite` directory:
+
+    ```bash
+    make
+    cd ..
+    python3 -m http.server
+    ```
+
+    Open your web browser with address:port of `192.168.2.19:8000` when your router has its own address of `192.168.2.1` and your LAN server is assigned as an address ends with `.19`.
+
  3. For an Internet-facing website, you would be hosting the static
     website/blog on a hosting service and/or with a web server such as
     Apache HTTP Server, Nginx, etc. You probably only need to generate
