@@ -1,7 +1,7 @@
     {
-        "base_path": "/make-site/_site",
+        "base_path": "/_site",
         "subtitle": "Webpage builder training",
         "author": "YM",
-        "site_url": "https://makyno.jp/make-site/_site",
+        "site_url": "https://192.168.2.19/_site",
         "current_year": "2023"
     }
