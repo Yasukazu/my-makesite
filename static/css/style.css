@@ -1,7 +1,7 @@
 /* General */
 body {
-    margin: 0;
-    line-height: 1.5em;
+    margin: 1rem;
+    line-height: 1.5rem;
     color: #333333;
     font-family: helvetica, arial, sans-serif;
 }
@@ -142,4 +142,20 @@ div .more {
 
 .rss:hover, .rss:active {
     background: #ff8822;
+}
+
+span {
+    display: inline-block;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+span[lang]::before {
+    content: "(";
+}
+span[lang]::after {
+    content: ")";
+}
+a[href] {
+    border: dashed thin;
+    padding: 0.2em;
 }
