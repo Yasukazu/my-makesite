@@ -5,4 +5,5 @@ __pycache__
 htmlcov
 *.sw?
 .DS_Store
-venv
+.venv
+_site
