@@ -195,8 +195,8 @@ def main():
 
     # Default parameters.
     params = {
-        'base_path': '/make-site/_site',
-        'subtitle': 'Lorem Ipsum',
+        'base_path': '/_site',
+        'subtitle': 'makesite test',
         'author': 'Admin',
         'site_url': 'http://localhost:8000',
         'current_year': datetime.datetime.now().year
