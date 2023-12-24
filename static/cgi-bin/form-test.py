@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
+#/usr/bin/python
 # -*- coding: utf-8 -*-
 # Reference: https://qiita.com/TSKY/items/b041de0572e6586c889c
 import cgi
