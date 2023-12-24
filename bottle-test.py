@@ -10,6 +10,6 @@ from bottle import route, run
 @route('/')
 def myhome():
 
-    return "<h1>It's my home page</h1>"
+    return "<h1>It's my first web page with &lt;Bottle.py&gt;</h1>"
 
 run(host='localhost', port=8080)
