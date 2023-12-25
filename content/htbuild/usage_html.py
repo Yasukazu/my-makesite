@@ -11,7 +11,7 @@ import htbuilder as h
 title = "Front matter in HTML comment"
 subtitle = "Front matter as markdown header i.e. YAML format part separated with 3 hyphens('---') before and after the header part"
 
-main = h.main(
+content = h.div(_class='content')(
     h.h1(_id='title')(title),
     h.h2(_id='subtitle')(subtitle),
        h.h3(_class='item')("Difference from original",

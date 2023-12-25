@@ -1,9 +1,9 @@
 #import htbuilder as h
-from htbuilder import main, h1, h2, ul, li, pre, b
+from htbuilder import div, h1, h2, ul, li, pre, b
 #from pyhtml import *
 import datetime
 date = datetime.date.fromisoformat("2023-12-25")
-tag = main(
+content = div(_class='content')(
     h1("Formats of documents"),
         h2("Difference from original makesite"),
         ul(
