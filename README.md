@@ -8,7 +8,25 @@ my-makesite : a fork of makesite
 title: 'a title'
 ---
 </pre>
-Originally, meta data are embed in HTML comment (like TURBO PASCAL compiler)
+Originally, meta data are embed in HTML comment (like `<!-- key: value -->`)
+
+2. HTML file is generated from Python script using [`htbuilder`](https://github.com/tvst/htbuilder "GitHub repository") module 
+
+- Make `htbuild` folder under `content` folder
+- Python script in `htbuilder` folder are like:
+
+```python
+from htbuilder import div, h1, h2, ul, li, pre, b
+import datetime
+date = datetime.date.fromisoformat("2023-12-25")
+content = div(_class='content')(
+    h1("Formats of documents"),
+...
+```
+Benefits of using Python script are:
+- Repeat items
+- Programming in document
+
 `makesite.py` is the single python script to generate a site(aka collection of HTML pages) into `_site` folder
 ===========
 
