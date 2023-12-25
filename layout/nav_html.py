@@ -13,22 +13,19 @@ slug_title = yaml.load("""
     usage-html-builder: HTMLビルダーの使いかた
  """, Loader=yaml.CLoader)
 
-def render_a():
-    """every double bracket becomes single"""
-    #list = []
+def iter_a():
     for k, v in slug_title.items():
         yield hg.A(v + ' ' + k, href="{{ base_path }}/%s/"%k)
-        #list.append(hg.A(v + ' ' + k, href="{{ base_path }}/%s/"%k))
-    #return list
+
 content_obj = hg.NAV(
     hg.A(
         index_title,
         href="{{ base_path }}/",
        _class="home-link"),
-    *[a for a in render_a()] #(a for a in render_a({}))
+    *[a for a in iter_a()]
     )
+
 if __name__ == '__main__':
-  #nav_txt = render(nav_obj,{})
   body_obj = hg.BODY(content_obj, hg.MAIN("In main."))
   body_txt = render(body_obj,{})
   print(body_txt)
