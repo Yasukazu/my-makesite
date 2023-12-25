@@ -10,12 +10,17 @@ title: 'a title'
 </pre>
 Originally, meta data are embed in HTML comment (like `<!-- key: value -->`)
 
-2. HTML file is generated from Python script using [`htbuilder`](https://github.com/tvst/htbuilder "GitHub repository") module 
+2. HTML file is generated from Python script using 
+<s>[`htbuilder`](https://github.com/tvst/htbuilder "GitHub repository") module </s>
+[HTML Generator](https://github.com/basxsoftwareassociation/htmlgenerator) module
 
+Posts about HTML generator are in `/blog`.
+
+##  Ever before used `htbuilder`:
 - Make `htbuild` folder under `content` folder
 - Python script in `htbuilder` folder are like:
 
-```python
+```python htbuilder_example.py
 from htbuilder import div, h1, h2, ul, li, pre, b
 import datetime
 date = datetime.date.fromisoformat("2023-12-25")
