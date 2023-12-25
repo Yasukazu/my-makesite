@@ -5,9 +5,9 @@
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 
 """Make static website/blog with Python."""
+from __future__ import annotations
+from collections.abc import Iterator
 
-import pathlib
-from pathlib import Path
 import os
 import shutil
 import re
@@ -15,7 +15,10 @@ import glob
 import sys
 import json
 import datetime
+import pathlib
+from pathlib import Path
 
+# default directories
 CWD = Path(os.getcwd())
 CONTENT = Path('content')
 LAYOUT = Path('layout')
@@ -28,9 +31,27 @@ def get_htbuild_list():
     return list(htbuild_path.glob("*.py"))
 
 from importlib import import_module
+import htbuilder
 
-def get_module():
-    pass
+def get_htbuild_contents() -> Iterator[htbuilder.HtmlElement]:
+    htbuild_path = content_path / HTBUILD
+    build_files = list(htbuild_path.glob("*.py"))
+    build_names = [n.name for n in build_files]
+    build_nodes = [os.path.splitext(n)[0] for n in build_names if n != '__init__.py']
+    sys.path.append(str(htbuild_path))
+    for node in build_nodes:
+        content = import_module(node).content 
+        yield content
+
+def get_htbuild_modules() -> Iterator[module]:
+    htbuild_path = content_path / HTBUILD
+    build_files = list(htbuild_path.glob("*.py"))
+    build_names = [n.name for n in build_files]
+    build_nodes = [os.path.splitext(n)[0] for n in build_names if n != '__init__.py']
+    sys.path.append(str(htbuild_path))
+    for node in build_nodes:
+        yield import_module(node)  
+
 
 def fread(filename):
     """Read file and close the file."""
@@ -73,7 +94,7 @@ def rfc_2822_format(date_str):
 
 date_pat = re.compile(r'(19|20)\d{2}-[01][012]-[0123]\d')
 md_ext_set = set('md mkd mkdn mdown markdown'.split())
-def read_content(filename):
+def read_content(filename: str) -> {str:str}:
     """Read content and metadata from file into a dictionary."""
     # Read file content.
     text = fread(filename)
@@ -91,11 +112,12 @@ def read_content(filename):
         date_str = name_node[span[0]:span[1]]
         content['date'] = date_str
         if span[0] == 0:
-            slug_str = name_node[span[1]+1:]
+            slug_str = name_node[span[1]:]
         else:
-            slug_str = name_node[0: span[0]-1]
-        if slug_str:
-            content['slug'] = slug_str
+            slug_str = name_node[0: span[0]]
+        slug_str = slug_str.strip(" -_")
+        assert(slug_str)
+        content['slug'] = slug_str
 
     # Read headers.
     end = 0
@@ -116,10 +138,11 @@ def read_content(filename):
             text = parser.convert(text)
             metadata = parser.Meta
             if metadata:
-	            for key,value in metadata.items():
-	                if len(value) == 1:
-	                    metadata[key] = value[0]
-	            content = {**content, **metadata} # merge
+                for key,value in metadata.items():
+                    if len(value) == 1:
+                        metadata[key] = value[0] # 1st item of list
+
+                content = {**content, **metadata} # merge
         except ImportError as e:
             log('WARNING: ImportError makes unable to render markdown in {}: {}', filename, str(e))
 
@@ -139,6 +162,37 @@ def render(template, **params):
                   template)
     return rendered
 
+def make_page_from_htbuild(htbuild, dst, layout, **params):
+    """Generate a page from page content."""
+    
+
+    main_content = htbuild.content
+
+    htbuild_dir = dir(htbuild)
+    if 'content' in htbuild_dir:
+        content = {'content': str(main_content)} 
+    else:
+        raise ValueError(htbuild.__name__ + ' has no content!')
+      
+    if 'title' in htbuild_dir:
+        content['title'] = htbuild.title 
+    if 'subtitle' in htbuild_dir:
+        content['subtitle'] = htbuild.subtitle 
+
+    page_params = dict(params, render='yes', **content)
+
+    # Populate placeholders in content if content-rendering is enabled.
+    if page_params.get('render') == 'yes':
+        rendered_content = render(page_params['content'], **page_params)
+        page_params['content'] = rendered_content
+        content['content'] = rendered_content
+
+    
+    page_params['slug'] = htbuild.__name__.replace('_', '-')
+    dst_path = render(dst, **page_params)
+    output = render(layout, **page_params)
+    fwrite(dst_path, output)
+    log('Rendered {} and wrote into => {} ...', htbuild.__name__, dst_path)
 
 def make_pages(src, dst, layout, **params):
     """Generate pages from page content."""
@@ -183,6 +237,8 @@ def make_list(posts, dst, list_layout, item_layout, **params):
 
 
 def main():
+    #for content in get_htbuild_contents():
+    #    htbuild_contents.append(content)
     # Create a new _site directory from scratch.
     if os.path.isdir('_site'):
         shutil.rmtree('_site')
@@ -213,6 +269,10 @@ def main():
     post_layout = render(page_layout, content=post_layout)
     list_layout = render(page_layout, content=list_layout)
 
+    # get htbuild contests
+    for htbuild_module in get_htbuild_modules():
+      make_page_from_htbuild(htbuild_module,'_site/{{ slug }}/index.html', page_layout, **params)
+
     # Create site pages.
     make_pages('content/_index.html', '_site/index.html',
                page_layout, **params)
@@ -223,6 +283,7 @@ def main():
     blog_posts = make_pages('content/blog/*.md',
                             '_site/blog/{{ slug }}/index.html',
                             post_layout, blog='blog', **params)
+    # Create news posts.
     news_posts = make_pages('content/news/*.html',
                             '_site/news/{{ slug }}/index.html',
                             post_layout, blog='news', **params)
