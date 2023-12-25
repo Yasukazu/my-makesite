@@ -20,12 +20,23 @@ def render_a():
         list.append(hg.A(v + ' ' + k, href="{{ base_path }}/%s/"%k))
     return list
 
+class DoA:
+  def __init__(self, given_render):
+     self.given_render = given_render
+  
+  def render(self, params={}):
+    """every double bracket becomes single"""
+    for k, v in slug_title.items():
+      yield  self.given_render(hg.A(v + ' ' + k, href="{{ base_path }}/%s/"%k), params)
+# class version: fail: 
+
 nav_obj = hg.NAV(
     hg.A(
         index_title,
         href="{{ base_path }}/",
         _class="home-link"),
-        *render_a()#(a for a in render_a({}))
+        DoA(render)
+        #*render_a()#(a for a in render_a({}))
     )
 nav_txt = render(nav_obj,{})
 print(nav_txt)
