@@ -15,17 +15,19 @@ slug_title = yaml.load("""
 
 def render_a():
     """every double bracket becomes single"""
-    list = []
+    #list = []
     for k, v in slug_title.items():
-        list.append(hg.A(v + ' ' + k, href="{{ base_path }}/%s/"%k))
-    return list
+        yield hg.A(v + ' ' + k, href="{{ base_path }}/%s/"%k)
+        #list.append(hg.A(v + ' ' + k, href="{{ base_path }}/%s/"%k))
+    #return list
 
 nav_obj = hg.NAV(
     hg.A(
         index_title,
         href="{{ base_path }}/",
-        _class="home-link"),
-        *render_a()#(a for a in render_a({}))
+       _class="home-link"),
+    *[a for a in render_a()] #(a for a in render_a({}))
     )
-nav_txt = render(nav_obj,{})
-print(nav_txt)
+if __name__ == '__main__':
+  nav_txt = render(nav_obj,{})
+  print(nav_txt)
