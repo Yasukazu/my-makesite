@@ -1,32 +1,13 @@
-#!/usr/bin/env python
+#!python3
 
 # The MIT License (MIT)
-#
-# Copyright (c) 2018-2022 Sunaina Pai
-#
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
+# Copyright (c) 2023 Yasukazu Makino
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 
 """Make static website/blog with Python."""
 
-
+import pathlib
+from pathlib import Path
 import os
 import shutil
 import re
@@ -35,6 +16,21 @@ import sys
 import json
 import datetime
 
+CWD = Path(os.getcwd())
+CONTENT = Path('content')
+LAYOUT = Path('layout')
+STATIC = Path('static')
+HTBUILD = Path('htbuild')
+content_path = CWD / CONTENT
+
+def get_htbuild_list():
+    htbuild_path = content_path / HTBUILD
+    return list(htbuild_path.glob("*.py"))
+
+from importlib import import_module
+
+def get_module():
+    pass
 
 def fread(filename):
     """Read file and close the file."""
@@ -182,9 +178,8 @@ def make_list(posts, dst, list_layout, item_layout, **params):
     params['content'] = ''.join(items)
     dst_path = render(dst, **params)
     output = render(list_layout, **params)
-
-    log('Rendering list => {} ...', dst_path)
     fwrite(dst_path, output)
+    log('Rendered list has written to: ' + dst_path)
 
 
 def main():
@@ -195,10 +190,10 @@ def main():
 
     # Default parameters.
     params = {
-        'base_path': '/_site',
+        'base_path': '',
         'subtitle': 'makesite test',
         'author': 'Admin',
-        'site_url': 'http://localhost:8000',
+        'site_url': 'http://localhost:8000/',
         'current_year': datetime.datetime.now().year
     }
 
@@ -244,10 +239,16 @@ def main():
     make_list(news_posts, '_site/news/rss.xml',
               feed_xml, item_xml, blog='news', title='News', **params)
 
-
 # Test parameter to be set temporarily by unit tests.
 _test = None
 
 
 if __name__ == '__main__':
     main()
+    log("main finish.")
+    sys.exit(0)
+    from http.server import HTTPServer, CGIHTTPRequestHandler
+
+    httpd = HTTPServer(('localhost', 8001), CGIHTTPRequestHandler)
+    log("starting http server..")
+    httpd.serve_forever()
