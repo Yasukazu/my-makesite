@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 #!/usr/bin/python3
+=======
+#!/usr/local/bin/python3
+#/usr/bin/python
+>>>>>>> ec372197f0c05bf5a91bb0127ca1429aa924f071
 # -*- coding: utf-8 -*-
 # Reference: https://qiita.com/TSKY/items/b041de0572e6586c889c
 import cgi

@@ -1,7 +1,6 @@
     {
-        "base_path": "/_site",
         "subtitle": "Webpage builder training",
         "author": "YM",
-        "site_url": "https://192.168.2.19:8000/_site",
+        "site_url": "https://192.168.2.19:8000/",
         "current_year": "2023"
     }
