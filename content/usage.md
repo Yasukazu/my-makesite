@@ -1,11 +1,19 @@
----
-title: Front matter as markdown header i.e. YAML format part separated with 3 hyphens('---') before and after the header part
----
-<!-- title: Front matter in HTML comment -->
-## Difference from original *makesite*
-- Originally, meta data (aka front matters) are set as comments of HTML.
-- In this fork, meta data are written in leading 3-hyphen separated part as YAML format(YAML format is like a simplified JSON format).
+Difference from original makesite
+---------------------------------
 
-## Notice:
-- Headings start from H2 aka double crosshatches
- Since H1 is set with `title` in the front matter.
+*   Originally, meta data (aka front matters) are set as comments of HTML.
+*   In this fork, meta data in **markdown** files may be written in leading 3-hyphen separated part as YAML format(YAML format is like an intend format version JSON format). Like:
+    
+        ---
+        title: a title of an article
+        ---
+      
+    
+
+Headings(H2, H3, ... H6)
+------------------------
+
+*   Headings start from **H2** tag since **H1** is set with _title_ metadeta in the front matter.
+
+Template
+--------
