@@ -1,6 +1,4 @@
 import htmlgenerator as hg
-from htmlgenerator import mark_safe as safe
-from htmlgenerator import render
 import yaml
 
 index_title = "トップページ Home"
@@ -15,9 +13,10 @@ slug_title = yaml.load("""
 
 def iter_a():
     for k, v in slug_title.items():
-        yield hg.A(v + ' ' + k, href="{{ base_path }}/%s/"%k)
+        text = v + ' ' + k.title().replace('-', ' ') # title() capitalizes the 1st char of every words
+        yield hg.A(text, href="{{ base_path }}/%s/"%k)
 
-content_obj = hg.NAV(
+content_obj = hg.BaseElement(
     hg.A(
         index_title,
         href="{{ base_path }}/",
@@ -26,6 +25,7 @@ content_obj = hg.NAV(
     )
 
 if __name__ == '__main__':
-  body_obj = hg.BODY(content_obj, hg.MAIN("In main."))
-  body_txt = render(body_obj,{})
-  print(body_txt)
+  #body_obj = hg.BODY(hg.NAV(content_obj), hg.MAIN("In main."))
+  from htmlgenerator import render
+  html = render(content_obj,{})
+  print(html)
