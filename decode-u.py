@@ -35,8 +35,9 @@ while cur < dlen:
     clog.append(cur)
         
 if cur < dlen:
+    if inside:
+        raise ValueError("Double quote without closing!")
     tt.append(dcd[cur:])
-    assert(not inside)
     inout.append(False)
     # raise ValueError("EOF in inside double quote!")
 assert(len(tt) == len(inout))
