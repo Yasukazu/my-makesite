@@ -235,6 +235,24 @@ def make_list(posts, dst, list_layout, item_layout, **params):
     fwrite(dst_path, output)
     log('Rendered list has written to: ' + dst_path)
 
+import os
+cwd = os.getcwd()
+import sys
+sys.path.append(cwd)
+from module_util import imp_mod_fm_file_loc
+import htmlgenerator as hg
+
+def fload(fullpath: str):
+    '''Load HTML script from *_html.py and build it'''
+    base_name = os.path.basename(fullpath)
+    name, ext = os.path.splitext(base_name)
+    new_name = name + '_html'
+    dir_name = os.path.dirname(fullpath)
+    new_fullpath = os.path.join(dir_name, new_name)
+    new_fullpath += '.py'
+    page_mod = imp_mod_fm_file_loc(new_name, new_fullpath)
+    return hg.render(page_mod.content_obj, {}) 
+
 
 def main():
     #for content in get_htbuild_contents():
@@ -257,8 +275,10 @@ def main():
     if os.path.isfile('params.json'):
         params.update(json.loads(fread('params.json')))
 
+    # Load layouts from *_html.py
+    page_layout = fload('layout/page.html')
     # Load layouts.
-    page_layout = fread('layout/page.html')
+    #page_layout = fread('layout/page.html')
     post_layout = fread('layout/post.html')
     list_layout = fread('layout/list.html')
     item_layout = fread('layout/item.html')
@@ -302,6 +322,7 @@ def main():
 
 # Test parameter to be set temporarily by unit tests.
 _test = None
+
 
 
 if __name__ == '__main__':
