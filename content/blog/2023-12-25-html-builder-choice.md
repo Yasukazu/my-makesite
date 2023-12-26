@@ -9,7 +9,8 @@ Using `htmlgenerator` in _PyPi_ [html generator in pypi](https://pypi.org/projec
 
 ### HTML to script converter
 
-Needs `pip install htmlgenerator[all]` for `convertfromhtml filename.html`
+ - Needs `pip install htmlgenerator[all]` to execute `convertfromhtml filename.html`
+ - Generated Python script name is like: `*.html.py`. Rename it as `*_html.py` for use of python module.
 
 ### Iteration of tag objects was successfull althoug it uses all-capitalized HTML tags.
 
@@ -29,7 +30,7 @@ content_obj = hg.NAV(
     )
 ```
 
-### Import enclosing HTML tag object
+### Import HTML tag object `content_obj` assigned in the imported module
 
 ```python
 import htmlgenerator as hg
