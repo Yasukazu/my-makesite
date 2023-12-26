@@ -5,10 +5,10 @@ from htmlgenerator import render
 import os
 cwd = os.getcwd()
 import sys
-sys.path.append(cwd)
-from module_util import imp_mod_fm_file_loc
-
-body_mod = imp_mod_fm_file_loc('body_html', 'layout/body_html.py')
+sys.path.insert(0, cwd) # append
+# from module_util import imp_mod_fm_file_loc
+import layout.body_html as body_mod
+# body_mod = imp_mod_fm_file_loc('body_html', 'layout/body_html.py')
 
 content_obj = hg.BaseElement(
     safe("<!DOCTYPE html>"),
