@@ -24,8 +24,8 @@ content_obj = hg.BaseElement(
                 rel="stylesheet", type="text/css", href="{{ base_path }}/css/style.css"
             ),
         ),
-        body_mod.content_obj,
-        id="{{ slug }}"
+        hg.BODY(body_mod.content_obj)
+        # id="{{ slug }}"
     )
 )
 
