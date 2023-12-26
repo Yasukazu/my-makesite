@@ -1,20 +1,20 @@
 ---
-title: Trial of HTML builder Python libraries
+title: Trying HTML builders for Python :HTMLビルダーを試している
 ---
-## Current status
+## Current status 状況
 
-Using `htmlgenerator` in _PyPi_ [html generator in pypi](https://pypi.org/project/htmlgenerator/).
+Using `htmlgenerator` in _PyPi_ [HTML Generator in PyPi](https://pypi.org/project/htmlgenerator/).
 
-## Causes of choice:
+## Causes of choice :選んだ理由
 
-### HTML to script converter
+### Comes with a (HTML to script) reverse converter :逆変換機が付属する
 
  - Needs `pip install htmlgenerator[all]` to execute `convertfromhtml filename.html`
  - Generated Python script name is like: `*.html.py`. Rename it as `*_html.py` for use of python module.
 
-### Iteration of tag objects was successfull althoug it uses all-capitalized HTML tags.
+### Iteration of tag objects was successfull :繰り返しによるタグの挿入ができる
 
-- Make an iterator function to yield tag objects then call the iterator in the outside tag with exploded list comprehension
+- Make an iterator function to yield tag objects then call the iterator in the outside tag with exploded list comprehension :コルーチンとリスト内包表記
 
 ```python
 def iter_a():
@@ -30,7 +30,7 @@ content_obj = hg.NAV(
     )
 ```
 
-### Import HTML tag object `content_obj` assigned in the imported module
+### Import HTML tag object `content_obj` assigned in the imported module: 他のスクリプトで定義されたタグオブジェクトを取り込む 
 
 ```python
 import htmlgenerator as hg
