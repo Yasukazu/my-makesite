@@ -7,8 +7,8 @@ sys.path.insert(0, cwd) # append
 # from module_util import imp_mod_fm_file_loc
 import layout.nav_html as nav_mod
 # nav_mod = imp_mod_fm_file_loc('nav_html', 'layout/nav_html.py')
-content_obj = hg.BODY(
-        nav_mod.content_obj,
+content_obj = hg.BaseElement(
+        hg.NAV(nav_mod.content_obj),
         hg.MAIN(
             "\n{{ content }}\n",
         ),
@@ -26,8 +26,8 @@ content_obj = hg.BODY(
                     href="https://github.com/Yasukazu/my-makesite",
                 ),
             ),
-        ),
-        id="{{ slug }}",
+        )
+        #id="{{ slug }}",
 )
 
 if __name__ == '__main__':
