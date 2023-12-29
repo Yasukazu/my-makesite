@@ -1,0 +1,17 @@
+pre.
+  \n    - Preformatted
+      - text
+    
+h2
+  | This page saves your inqiry / このページにてお問い合わせをお受けします
+  form(action='/cgi-bin/form-test.py' method='POST')
+    | Input your email address, please / メールアドレスをご入力ください
+    input(type='email' name='email')
+    | Input your inqiry, please / お問い合わせをご入力ください
+    input(type='textarea' name='inqiry')
+    input(type='submit' name='submit' value='Send / 送信')
+  // title: Contact Form
+  //
+    A
+    multiline
+    comment
