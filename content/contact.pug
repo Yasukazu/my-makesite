@@ -1,15 +1,18 @@
-pre.
-    - Preformatted
-    - text
+ul
+   li code /cgi-bin/form-save.py
+   li code POST
+   li code email
+   li code inquiry
+   li code submit
     
-h2 This page saves your inqiry / このページにてお問い合わせをお受けします
-h3= "<Caution/ご注意> This page is just for a testing. / このページは試験的に設けたものです" 
-form(action='/cgi-bin/form-test.py' method='POST')
+h2 This page saves your inquiry / このページにてお問い合わせをお受けします
+h3= "<Caution! / ご注意!> This page is just for a testing. / このページは試験的に設けたものです" 
+form(action='/cgi-bin/form-save.py', method='POST')
   | Input your email address, please / メールアドレスをご入力ください
-  input(type='email' name='email')
-  | Input your inqiry, please / お問い合わせをご入力ください
-  input(type='textarea' name='inqiry')
-  input(type='submit' name='submit' value='Send / 送信')
+  input(type='email', name='email', required, placeholder='Email address like address@example.com')
+  | Input your inquiry within 1,000 characters, please / 1,000文字以内でお問い合わせをご入力ください
+  input(type='textarea', name='inquiry', required, placeholder='Inquiry content', maxlength='1000')
+  input(type='submit', name='submit', value='Send / 送信')
   // title: Contact Form
   //
     A
