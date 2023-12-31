@@ -120,29 +120,42 @@ def parsehtml2object(html):
 
 INDENT = 2
 spc = ' '
-def format_attrs(a, attrs: dict) -> str:
-    return '(' + a + ', "' + ' '.join(attrs[a]) + '")'
-def do_with(tag: Tag, depth: int): # , outlist: list):
-    heading = depth * spc + "with tag("
-    params = [f"'{tag.name}'"]
-    if tag.attrs:
-        params += [format_attrs(a, tag.attrs) for a in tag.attrs]
-        heading += ", " + ', '.join(params)
-    print(heading, end='')
-    if tag.children:
-        print(", ", end='')
-        for child in tag.children:
-            if isinstance(child, Tag):
+def format_attrs(a: str, attrs: dict) -> str:
+    return ('klass' if a == 'class' else a) + '="' + " ".join(attrs[a]) + '"'
+from typing import Union
+def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int): # , outlist: list):
+    print(depth * spc, end='') # + "with tag("
+
+    def do_text(txt: NavigableString):
+        print(f'text("{txt}")')
+
+    def do_comment(cmt: Comment):
+        print(f'#{cmt}')
+
+    def do_tag(tag: Tag, depth: int):
+        spcs = depth * INDENT * ' '
+        code = "tag(" + f'"{tag.name}"'
+        if tag.attrs:
+            code += ", "
+            params = [format_attrs(a, tag.attrs) for a in tag.attrs]
+            code += ", " + ", ".join(params)
+        code += ")"
+        if tag.children:
+            print(code + ":")
+            for child in tag.children:
                 do_with(child, depth + 1)
-            elif isinstance(child, NavigableString):
-                print(f'text("{child}")')
-            elif isinstance(child, Comment):
-                print(f'#{Comment}')
-            print(", ", end='')
-    print(")")
+        else:
+            print("doc.s" + code)
+
+    if isinstance(subtag, Tag):
+        do_tag(subtag, depth)
+    elif isinstance(subtag, NavigableString):
+        do_text(subtag)
+    else:
+        do_comment(subtag)
 
 
-def parsehtml(html, formatting, compact):
+def parsehtml(html: str, formatting, compact):
     out = [ "from yattag import Doc",
 "doc, tag, text, line = Doc().ttl()" ]
     parser = "html.parser"
@@ -150,7 +163,7 @@ def parsehtml(html, formatting, compact):
     for subtag in soup.contents:
         indent = 0
         outlist = []
-        do_with(subtag, indent, outlist)
+        do_with(subtag, indent)
         tags = convert(subtag, 1, compact)
         if tags:
             if tags[-1].strip():
