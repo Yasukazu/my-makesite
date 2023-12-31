@@ -28,6 +28,7 @@ def trim_text() -> bool:
 def trim_tag() -> str:
   def trim_attr() -> str:
 
+
     if not line.find(')'):
       raise ValueError("No closing paren.!")
     pass
