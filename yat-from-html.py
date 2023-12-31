@@ -116,49 +116,35 @@ def parsehtml2object(html):
     # should not be used in production, however the code should be escaped correctly
     exec(parsehtml(html, False, True), {}, _locals)  # nosec
     return _locals["html"]
-from typing import Union
-class Enclose:
-    def __init__(self, list: list, pair: Union[tuple,str]):
-        if isinstance(pair, tuple):
-            self.pair = pair
-            self.list = list
-        else:
-            self.pair = (pair, pair)
-        self.list = []
-    def __enter__(self):
-        self.list.append(self.pair[0])
-    def __exit__(self):
-        self.list.append(self.pair[1])
+
 
 INDENT = 2
 spc = ' '
 def format_attrs(a, attrs: dict) -> str:
-    return f'{a}={attrs[a]}'
-def do_with(tag: Tag, indent: int, outlist: list):
-    heading = indent * spc + "with Tag("
-    heading += f"'{tag.name}'"
+    return '(' + a + ', "' + ' '.join(attrs[a]) + '")'
+def do_with(tag: Tag, depth: int): # , outlist: list):
+    heading = depth * spc + "with tag("
+    params = [f"'{tag.name}'"]
     if tag.attrs:
-        heading += ', '
-        for a in tag.attrs:
-            attrs = format_attrs(a, tag.attrs)
-            heading += attrs + ', '
-        #
-    heading += '):'
-    _pp = []
-    with Enclose(_pp, ('(', ')')) as pp:
-      breakpoint()
-      _qp = []
-      with Enclose(qp, "'") as qp:
-        qp.append(tag.name)
-      pp.append(*qp)
-    outlist.append(*pp)
-    outlist.append(':')
-    indent += INDENT
-    pass
+        params += [format_attrs(a, tag.attrs) for a in tag.attrs]
+        heading += ", " + ', '.join(params)
+    print(heading, end='')
+    if tag.children:
+        print(", ", end='')
+        for child in tag.children:
+            if isinstance(child, Tag):
+                do_with(child, depth + 1)
+            elif isinstance(child, NavigableString):
+                print(f'text("{child}")')
+            elif isinstance(child, Comment):
+                print(f'#{Comment}')
+            print(", ", end='')
+    print(")")
+
 
 def parsehtml(html, formatting, compact):
     out = [ "from yattag import Doc",
-"doc, tag, text, line = DOc().ttl()" ]
+"doc, tag, text, line = Doc().ttl()" ]
     parser = "html.parser"
     soup = BeautifulSoup(html, parser)
     for subtag in soup.contents:
