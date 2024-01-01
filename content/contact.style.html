@@ -1,0 +1,29 @@
+<head>
+    <style>
+        fieldset {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+        }
+        label {
+            border: thin dotted;
+        }
+    </style>
+</head>
+<body>
+<h2>This page is a form to leave a message to the author of this website / このページは、このウェブサイトの作者に伝言を残すための用紙です</h2>
+<form action="/cgi-bin/form-save.py" method="POST">
+  <fieldset>
+    <legend>Inqiry / お問い合わせ</legend>
+    <label id="input-email">
+        Input your email address, please / メールアドレスをご入力ください
+        <input type="email" name="email" required="required" placeholder="Email address like address@example.com"/>
+    </label> 
+    <label>
+        Input your inquiry within 1,000 characters, please / 1,000文字以内でお問い合わせをご入力ください
+        <input type="textarea" name="inquiry" required="required" placeholder="Inquiry content" maxlength="1000"/>
+    </label> 
+  <input type="submit" name="submit" value="Submit button / 送信ボタン"/>
+  </fieldset>
+</form>
+</body>
