@@ -174,6 +174,8 @@ def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int): # , outli
     print(depth * INDENTS, end='') # + "with tag("
     if isinstance(subtag, Tag):
         do_tag(subtag, depth)
+    elif isinstance(subtag, Comment):
+        do_comment(subtag)
     elif isinstance(subtag, NavigableString):
         if not only_spcs(subtag):
             text = subtag
@@ -185,8 +187,8 @@ def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int): # , outli
                 text = subtag[:-len(post[0])]
             if text:
                 do_text(text)
-    else:
-        do_comment(subtag)
+    else: 
+        raise ValueError("Unknown type:" + type(subtag))
 
 
 def parsehtml(html: str, formatting, compact):
