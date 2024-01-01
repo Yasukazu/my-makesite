@@ -150,6 +150,7 @@ def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int): # , outli
                 code += params + ')' if params else ')'
                 print(depth * INDENTS + code)
             else:
+                code += ', ' + params + ')' if params else ')'
                 print(depth * INDENTS + 'with ' + code + ":")
                 for child in children:
                     do_with(child, depth + 1)
@@ -179,8 +180,10 @@ def parsehtml(html: str, formatting, compact):
     parser = "html.parser"
     soup = BeautifulSoup(html, parser)
     for subtag in soup.contents:
+        if isinstance(subtag, NavigableString):
+            if only_spcs(subtag):
+                continue
         indent = 0
-        outlist = []
         do_with(subtag, indent)
     breakpoint()
 
