@@ -1,5 +1,6 @@
 import codecs
 import os
+import re
 
 import black  # type: ignore
 from bs4 import BeautifulSoup, Comment, Doctype, NavigableString, Tag  # type: ignore
@@ -117,40 +118,57 @@ def parsehtml2object(html):
     exec(parsehtml(html, False, True), {}, _locals)  # nosec
     return _locals["html"]
 
+def only_spcs(s: str):
+    for c in s:
+        if c not in {' ', '\n', '\t'}:
+            return False
+    return True
 
 INDENT = 2
 spc = ' '
+INDENTS = INDENT * spc
 def format_attrs(a: str, attrs: dict) -> str:
     return ('klass' if a == 'class' else a) + '="' + " ".join(attrs[a]) + '"'
 from typing import Union
 def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int): # , outlist: list):
-    print(depth * spc, end='') # + "with tag("
+    print(depth * INDENTS, end='') # + "with tag("
 
     def do_text(txt: NavigableString):
-        print(f'text("{txt}")')
+        print(depth * INDENTS + f'text("{txt}")')
 
     def do_comment(cmt: Comment):
-        print(f'#{cmt}')
+        print(depth * INDENTS + f'#{cmt}')
 
     def do_tag(tag: Tag, depth: int):
-        spcs = depth * INDENT * ' '
         code = "tag(" + f'"{tag.name}"'
-        if tag.attrs:
-            code += ", "
-            params = [format_attrs(a, tag.attrs) for a in tag.attrs]
-            code += ", " + ", ".join(params)
-        code += ")"
+        attrs = [format_attrs(a, tag.attrs) for a in tag.attrs] if tag.attrs else None
+        params = ", ".join(attrs) if attrs else None
         if tag.children:
-            print(code + ":")
-            for child in tag.children:
-                do_with(child, depth + 1)
+            children = [c for c in tag.children]
+            if len(children) == 1 and isinstance(children[0], NavigableString):
+                code = f'line("{tag.name}", "{children[0]}"' 
+                code += params + ')' if params else ')'
+                print(depth * INDENTS + code)
+            else:
+                print(depth * INDENTS + 'with ' + code + ":")
+                for child in children:
+                    do_with(child, depth + 1)
         else:
             print("doc.s" + code)
 
     if isinstance(subtag, Tag):
         do_tag(subtag, depth)
     elif isinstance(subtag, NavigableString):
-        do_text(subtag)
+        if not only_spcs(subtag):
+            text = subtag
+            pre = re.search(r'^[\n\s\t]+', text)
+            if pre:
+                text = subtag[len(pre[0]):]
+            post = re.search(r'[\n\s\t]+$', text)
+            if post:
+                text = subtag[:len(post[0])]
+            if text:
+                do_text(text)
     else:
         do_comment(subtag)
 
@@ -164,12 +182,8 @@ def parsehtml(html: str, formatting, compact):
         indent = 0
         outlist = []
         do_with(subtag, indent)
-        tags = convert(subtag, 1, compact)
-        if tags:
-            if tags[-1].strip():
-                tags[-1] += ","
-            out.extend(tags)
-    out.append(")\n")
+    breakpoint()
+
 
     separator = " " if compact else "\n"
     htmlstr = separator.join(filter(lambda line: bool(line.strip()), out))
