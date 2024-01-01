@@ -1,6 +1,7 @@
 import codecs
 import os
 import re
+import sys
 
 import black  # type: ignore
 from bs4 import BeautifulSoup, Comment, Doctype, NavigableString, Tag  # type: ignore
@@ -127,42 +128,49 @@ def only_spcs(s: str):
 from unicodedata import normalize
 def normalize_print(s: str, end='\n'):
     ns = normalize("NFKD", s)
-    if end and ns:
-        print(ns, end=end)
+    print(ns, end=end)
 
 INDENT = 2
 spc = ' '
 INDENTS = INDENT * spc
+
+def do_text(txt: NavigableString):
+    normalize_print(f'text("{txt}")')
+
+def do_comment(cmt: Comment):
+    normalize_print(f'#{cmt}')
+
+def do_tag(tag: Tag, depth: int):
+    print = normalize_print
+    code = "tag(" + f'"{tag.name}"'
+    attrs = [format_attrs(a, tag.attrs) for a in tag.attrs] if tag.attrs else None
+    params = ", ".join(attrs) if attrs else None
+    children = [c for c in tag.children]
+    if len(children) == 0:
+        code += ', ' + params + ')' if params else ')'
+        print("s" + code)
+    elif len(children) == 1 and isinstance(children[0], NavigableString):
+        code = f'line("{tag.name}", "{children[0]}"' 
+        code += params + ')' if params else ')'
+        print(code)
+    else:
+        code += ', ' + params + ')' if params else ')'
+        print('with ' + code + ":")
+        for child in children:
+            do_with(child, depth + 1)
+
+
 def format_attrs(a: str, attrs: dict) -> str:
-    return ('klass' if a == 'class' else a) + f'="{attrs[a]}"'
+    list = attrs[a]
+    aa = ' '.join(list)
+    return ('klass' if a == 'class' else a) + f'="{aa}"'
+
 from typing import Union
-def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int, print=normalize_print): # , outlist: list):
+
+def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int): # , outlist: list):
+    if isinstance(subtag, NavigableString) and only_spcs(subtag):
+            return
     print(depth * INDENTS, end='') # + "with tag("
-
-    def do_text(txt: NavigableString):
-        print(depth * INDENTS + f'text("{txt}")')
-
-    def do_comment(cmt: Comment):
-        print(depth * INDENTS + f'#{cmt}')
-
-    def do_tag(tag: Tag, depth: int):
-        code = "tag(" + f'"{tag.name}"'
-        attrs = [format_attrs(a, tag.attrs) for a in tag.attrs] if tag.attrs else None
-        params = ", ".join(attrs) if attrs else None
-        if tag.children:
-            children = [c for c in tag.children]
-            if len(children) == 1 and isinstance(children[0], NavigableString):
-                code = f'line("{tag.name}", "{children[0]}"' 
-                code += params + ')' if params else ')'
-                print(depth * INDENTS + code)
-            else:
-                code += ', ' + params + ')' if params else ')'
-                print(depth * INDENTS + 'with ' + code + ":")
-                for child in children:
-                    do_with(child, depth + 1)
-        else:
-            print("doc.s" + code)
-
     if isinstance(subtag, Tag):
         do_tag(subtag, depth)
     elif isinstance(subtag, NavigableString):
@@ -173,7 +181,7 @@ def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int, print=norm
                 text = subtag[len(pre[0]):]
             post = re.search(r'[\n\s\t]+$', text)
             if post:
-                text = subtag[:len(post[0])]
+                text = subtag[:-len(post[0])]
             if text:
                 do_text(text)
     else:
@@ -185,21 +193,21 @@ def parsehtml(html: str, formatting, compact):
 "doc, tag, text, line = Doc().ttl()" ]
     parser = "html.parser"
     soup = BeautifulSoup(html, parser)
+
     for subtag in soup.contents:
         if isinstance(subtag, NavigableString):
             if only_spcs(subtag):
                 continue
         indent = 0
         do_with(subtag, indent)
-    breakpoint()
 
-
+'''
     separator = " " if compact else "\n"
     htmlstr = separator.join(filter(lambda line: bool(line.strip()), out))
     if not formatting:
         return htmlstr
     return black.format_file_contents(htmlstr, fast=True, mode=black.FileMode())
-
+'''
 
 def main():
     import sys
@@ -225,8 +233,12 @@ def main():
         print(parsehtml(sys.stdin.read(), formatting, compact), end="")
     for _file in files:
         with open(_file, encoding=encoding) as rf:
-            with open(_file + ".yat.py", "w") as wf:
-                wf.write(parsehtml(rf.read(), formatting, compact))
+            print("""from yattag import Doc
+doc, tag, text, line = Doc().ttl()
+stag = doc.stag """)
+            parsehtml(rf.read(), formatting, compact)
+            print("html = doc.getvalue()")
+            # with open(_file + ".yat.py", "w") as wf: wf.write(parsehtml(rf.read(), formatting, compact))
 
 
 if __name__ == "__main__":
