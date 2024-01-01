@@ -1,9 +1,7 @@
-<!-- title: Contact Form -->
-    <h2>入力値の積を表示します</h1>
-    <form action="/cgi-bin/form-test.py" method="POST">
-        値１を入力してください
-        <input type="text" name="value1">
-        値２を入力してください
-        <input type="text" name="value2">
-        <input type="submit" name="submit" value="送信">
-    </form>
+<div class="form ex">
+<form action="/cgi-bin/form-save.py" method="POST">Input your email address, please / メールアドレスをご入力ください
+  <input type="email" name="email" required="required" placeholder="Email address like address@example.com"/>Input your inquiry within 1,000 characters, please / 1,000文字以内でお問い合わせをご入力ください
+  <input type="textarea" name="inquiry" required="required" placeholder="Inquiry content" maxlength="1000"/>
+  <input type="submit" name="submit" value="Send / 送信"/>
+</form>
+</div>
