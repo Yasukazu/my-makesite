@@ -148,7 +148,7 @@ def do_tag(tag: Tag, depth: int):
     children = [c for c in tag.children]
     if len(children) == 0:
         code += ', ' + params + ')' if params else ')'
-        print("s" + code)
+        print("doc.s" + code) # doc.stag instead of tag
     elif len(children) == 1 and isinstance(children[0], NavigableString):
         code = f'line("{tag.name}", "{children[0]}"' 
         code += params + ')' if params else ')'
@@ -201,7 +201,7 @@ def parsehtml(html: str, formatting, compact):
         if isinstance(subtag, NavigableString):
             if only_spcs(subtag):
                 continue
-        indent = 0
+        indent = 1 # for def function
         do_with(subtag, indent)
 
 '''
@@ -212,8 +212,10 @@ def parsehtml(html: str, formatting, compact):
     return black.format_file_contents(htmlstr, fast=True, mode=black.FileMode())
 '''
 
+import os
+import sys
+
 def main():
-    import sys
 
     formatflag = "--no-formatting"
     compactflag = "--compact"
@@ -236,11 +238,14 @@ def main():
         print(parsehtml(sys.stdin.read(), formatting, compact), end="")
     for _file in files:
         with open(_file, encoding=encoding) as rf:
-            print("""from yattag import Doc
-doc, tag, text, line = Doc().ttl()
-stag = doc.stag """)
+            print("from yattag import Doc")
+            print("doc, tag, text, line = Doc().ttl()")
+            basename = os.path.basename(_file)
+            name, ext = os.path.splitext(basename)
+            name = name.replace('.', '_') # periods in filename(without extension) are replaced with underscores
+            print(f"def {name}():")
             parsehtml(rf.read(), formatting, compact)
-            print("html = doc.getvalue()")
+            print(INDENTS + "return doc")
             # with open(_file + ".yat.py", "w") as wf: wf.write(parsehtml(rf.read(), formatting, compact))
 
 
