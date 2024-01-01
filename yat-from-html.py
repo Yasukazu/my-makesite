@@ -124,13 +124,19 @@ def only_spcs(s: str):
             return False
     return True
 
+from unicodedata import normalize
+def normalize_print(s: str, end='\n'):
+    ns = normalize("NFKD", s)
+    if end and ns:
+        print(ns, end=end)
+
 INDENT = 2
 spc = ' '
 INDENTS = INDENT * spc
 def format_attrs(a: str, attrs: dict) -> str:
-    return ('klass' if a == 'class' else a) + '="' + " ".join(attrs[a]) + '"'
+    return ('klass' if a == 'class' else a) + f'="{attrs[a]}"'
 from typing import Union
-def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int): # , outlist: list):
+def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int, print=normalize_print): # , outlist: list):
     print(depth * INDENTS, end='') # + "with tag("
 
     def do_text(txt: NavigableString):
