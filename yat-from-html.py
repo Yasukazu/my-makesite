@@ -161,8 +161,9 @@ def do_tag(tag: Tag, depth: int):
 
 
 def format_attrs(a: str, attrs: dict) -> str:
-    list = attrs[a]
-    aa = ' '.join(list)
+    aa = attrs[a]
+    if isinstance(aa, list):
+      aa = ' '.join(aa)
     return ('klass' if a == 'class' else a) + f'="{aa}"'
 
 from typing import Union
