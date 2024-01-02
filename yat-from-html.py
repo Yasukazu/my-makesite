@@ -135,7 +135,11 @@ spc = ' '
 INDENTS = INDENT * spc
 
 def do_text(txt: NavigableString):
-    normalize_print(f'text("{txt}")')
+    tx = txt.lstrip().rstrip()
+    '''lead_spcs = re.search(r'^[\n\s\t]+')
+    if lead_spcs:
+        trimmed = '''
+    normalize_print(f'text("{tx}")')
 
 def do_comment(cmt: Comment):
     normalize_print(f'#{cmt}')
