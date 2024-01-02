@@ -125,41 +125,47 @@ def only_spcs(s: str):
             return False
     return True
 
-from unicodedata import normalize
-def normalize_print(s: str, end='\n'):
-    ns = normalize("NFKD", s)
-    print(ns, end=end)
 
 INDENT = 2
 spc = ' '
 INDENTS = INDENT * spc
 
-def do_text(txt: NavigableString):
-    tx = txt.lstrip().rstrip()
-    '''lead_spcs = re.search(r'^[\n\s\t]+')
-    if lead_spcs:
-        trimmed = '''
-    normalize_print(f'text("{tx}")')
+#from unicodedata import normalize
+def nprint(d: int, s: str, end='\n'):
+   # ns = normalize("NFKD", s)
+    print(d * INDENTS + s, end=end)
 
-def do_comment(cmt: Comment):
-    normalize_print(f'#{cmt}')
+def do_text(txt: NavigableString, d: int):
+    tt = txt.split('\n')
+    list = []
+    for t in tt:
+        t = t.strip().rstrip()
+        if t:
+            list.append(t)
+    if len(list) > 0:
+        spc = ' '
+        nprint(d, f'text("{spc.join(list)}")')
+
+def do_comment(cmt: Comment, d: int):
+    tx = cmt.lstrip().rstrip()
+    txr = tx.replace('\n', '\\n')
+    nprint(d, f'#{txr}')
 
 def do_tag(tag: Tag, depth: int):
-    print = normalize_print
     code = "tag(" + f'"{tag.name}"'
     attrs = [format_attrs(a, tag.attrs) for a in tag.attrs] if tag.attrs else None
     params = ", ".join(attrs) if attrs else None
     children = [c for c in tag.children]
     if len(children) == 0:
         code += ', ' + params + ')' if params else ')'
-        print("doc.s" + code) # doc.stag instead of tag
+        nprint(depth, "doc.s" + code) # doc.stag instead of tag
     elif len(children) == 1 and isinstance(children[0], NavigableString):
         code = f'line("{tag.name}", "{children[0]}"' 
-        code += params + ')' if params else ')'
-        print(code)
+        code += f', {params})' if params else ')'
+        nprint(depth, code)
     else:
         code += ', ' + params + ')' if params else ')'
-        print('with ' + code + ":")
+        nprint(depth, 'with ' + code + ":")
         for child in children:
             do_with(child, depth + 1)
 
@@ -168,29 +174,20 @@ def format_attrs(a: str, attrs: dict) -> str:
     aa = attrs[a]
     if isinstance(aa, list):
       aa = ' '.join(aa)
-    return ('klass' if a == 'class' else a) + f'="{aa}"'
+    return f'("{a}", "{aa}")' #('klass' if a == 'class' else a) + f'="{aa}"'
 
 from typing import Union
 
 def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int): # , outlist: list):
     if isinstance(subtag, NavigableString) and only_spcs(subtag):
             return
-    print(depth * INDENTS, end='') # + "with tag("
+    # print(depth * INDENTS, end='') # + "with tag("
     if isinstance(subtag, Tag):
         do_tag(subtag, depth)
     elif isinstance(subtag, Comment):
-        do_comment(subtag)
+        do_comment(subtag, depth)
     elif isinstance(subtag, NavigableString):
-        if not only_spcs(subtag):
-            text = subtag
-            pre = re.search(r'^[\n\s\t]+', text)
-            if pre:
-                text = subtag[len(pre[0]):]
-            post = re.search(r'[\n\s\t]+$', text)
-            if post:
-                text = subtag[:-len(post[0])]
-            if text:
-                do_text(text)
+        do_text(subtag, depth)
     else: 
         raise ValueError("Unknown type:" + type(subtag))
 
@@ -206,7 +203,7 @@ def parsehtml(html: str, formatting, compact):
         if isinstance(subtag, NavigableString):
             if only_spcs(subtag):
                 continue
-        indent = 1 # for def function
+        indent = 0
         do_with(subtag, indent)
 
 '''
@@ -248,9 +245,9 @@ def main():
             basename = os.path.basename(_file)
             name, ext = os.path.splitext(basename)
             name = name.replace('.', '_') # periods in filename(without extension) are replaced with underscores
-            print(f"def {name}():")
+            #print(f"def {name}():")
             parsehtml(rf.read(), formatting, compact)
-            print(INDENTS + "return doc")
+            # print(INDENTS + "return doc")
             # with open(_file + ".yat.py", "w") as wf: wf.write(parsehtml(rf.read(), formatting, compact))
 
 
