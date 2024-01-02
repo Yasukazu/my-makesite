@@ -196,8 +196,9 @@ def parsehtml(html: str, formatting, compact):
 "doc, tag, text, line = Doc().ttl()" ]
     parser = "html.parser"
     soup = BeautifulSoup(html, parser)
-
-    for subtag in soup.contents:
+    main_tag = soup.find("main")
+    contents = main_tag or soup.contents
+    for subtag in contents:
         if isinstance(subtag, NavigableString):
             if only_spcs(subtag):
                 continue
