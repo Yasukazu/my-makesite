@@ -1,17 +1,58 @@
 <!-- div class="form ex" -->
-<h2>This page is a form to leave a message to the author of this website / このページは、このウェブサイトの作者に伝言を残すための用紙です</h2>
+<head>
+  <!--  display: flex; flex-direction: column; -->
+  <style>
+    body {
+        height: auto;
+    }
+    form {
+        padding: 1em;
+    }
+    input,
+    textarea,
+    label,
+    button {
+        width: auto;
+        padding: 0.5em;
+        margin: 1em;
+        box-sizing: border-box;
+    }
+
+    label {
+        display: inline-block;
+        border: thin dotted;
+    }
+    textarea {
+        display: block;
+        height: auto;
+        width: auto;
+        line-height: 1.5em;
+    }
+    button {
+        width: 20%;
+        display: block;
+    }
+    fieldset {
+        height: auto;
+    }
+
+  </style>
+</head>
+<body>
+<h2 class="form">This page is a form to leave a message to the author of this website / このページは、このウェブサイトの作者に伝言を残すための用紙です</h2>
 <form action="/cgi-bin/form-save.py" method="POST">
+    <input type="submit" name="submit" value="Submit button / 送信ボタン"/>
   <fieldset>
-    <legend>Inqiry / お問い合わせ</legend>
-    <label id="input-email">
+  <legend>Inqiry / お問い合わせ</legend>
+    <label id="input-email" for="email">
         Input your email address, please / メールアドレスをご入力ください
-        <input type="email" name="email" required="required" placeholder="Email address like address@example.com"/>
+    <input type="email" name="email" id="email" required="required" placeholder="Email address like address@example.com" size="25" />
     </label> 
-    <label>
-        Input your inquiry within 1,000 characters, please / 1,000文字以内でお問い合わせをご入力ください
-        <input type="textarea" name="inquiry" required="required" placeholder="Inquiry content" maxlength="1000"/>
+    <label id="inquiry">
+        Input your inquiry within 1,000 characters, please / 千文字以内でお問い合わせをご入力ください
+        <input type="textarea" name="inquiry" required="required" placeholder="Inquiry content" maxlength="1000" cols="50" rows="20">
     </label> 
-  <input type="submit" name="submit" value="Submit button / 送信ボタン"/>
   </fieldset>
 </form>
+</body>
 <!-- /div -->
