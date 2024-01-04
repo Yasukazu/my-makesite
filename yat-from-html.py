@@ -129,8 +129,8 @@ def only_spcs(s: str):
 
 class IndentStr:
     def __init__(self, s: str, indent: int=0, end: str=''):
-        self.s = s
         self.indent = indent
+        self.s = s
         self.end = end
 
 from typing import List
@@ -147,29 +147,35 @@ INDENTS = INDENT * spc
 
 def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int, indent=INDENT) -> str: # , file=sys.stdout): # , outlist: list):
     #from unicodedata import normalize
-    sio = io.StringIO()
-    ss = [] # a list of IndentStr
+    ss :list[IndentStr] = [] # a list of IndentStr
 
     def nprint(d: int, s: str, end='\n'):
     # ns = normalize("NFKD", s)
-        ss.append(IndentStr(d * indent, s, end))
+        ss.append(IndentStr(s, d * indent, end))
         # print(d * INDENTS + s, file=sio, end=end)
 
-    def do_text(txt: NavigableString, d: int):
-        tt = txt.split('\n')
-        list = []
-        for t in tt:
-            t = t.strip().rstrip()
+    STN = ' \t\n'
+    def do_text(tx: NavigableString, d: int):
+        tx = tx.strip(STN).lstrip(STN)
+        if not tx:
+            return
+        for t in tx.split('\n'):
+            t = t.strip(STN).lstrip(STN)
             if t:
-                list.append(t)
-        if len(list) > 0:
-            spc = ' '
-            nprint(d, f'text("{spc.join(list)}")')
+                nprint(d, f'text("{t}")', end='\n')
 
-    def do_comment(cmt: Comment, d: int):
-        tx = cmt.lstrip().rstrip()
-        txr = tx.replace('\n', '\\n')
-        nprint(d, f'#{txr}')
+    def do_comment(tx: Comment, d: int):
+        tx = tx.strip('\n').lstrip('\n')
+        if not tx:
+            return
+        if tx.find('\n') >= 0: # multi line
+            nprint(d, "'''Comment: ", end='')
+            for t in tx.split('\n'):
+                nprint(d, t)
+            nprint(d, 3 * "'")
+        else:
+                nprint(d, f'# {tx}')
+
 
     def do_tag(tag: Tag, depth: int):
         code = "tag(" + f'"{tag.name}"'
