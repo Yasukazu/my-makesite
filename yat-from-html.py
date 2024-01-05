@@ -226,10 +226,10 @@ def do_with(do_list: List[Tuple[int, str]],
         raise ValueError("Unknown type:" + type(subtag))
 
 
-def parsehtml(html: str, formatting, compact) -> List[str]:
+def parsehtml(html: str, formatting, compact, tag) -> List[str]:
     parser = "html.parser"
     soup = BeautifulSoup(html, parser)
-    main_tag = soup.find("main")
+    main_tag = soup.find(tag) if tag else None
     contents = main_tag or soup.contents
     taglist: Tuple[int, str] = []
     for subtag in contents:
@@ -244,43 +244,55 @@ def parsehtml(html: str, formatting, compact) -> List[str]:
     # print("html = doc.getvalue()", file=out)
     return join_ist(taglist)
 
-
-import os
-import sys
+import argparse
+from pathlib import Path
 
 def main():
+    parser = argparse.ArgumentParser(
+        prog='Yattag Python code generator',
+        description='Generates Yattag Python code from HTML',
+        epilog='by Y.M 2024')
+    parser.add_argument('-f', "--formatting") # formatflag 
+    parser.add_argument('-c', "--compact") # compactflag 
+    parser.add_argument('-t', '--tag') # extract a tag
+    parser.add_argument('-e', "--encoding") # encodingflag 
+    parser.add_argument("files", nargs='*')
 
-    formatflag = "--no-formatting"
-    compactflag = "--compact"
-    encodingflag = "--encoding"
-    encoding = sys.getdefaultencoding()
+    args = parser.parse_args()
 
-    files = sys.argv[1:]
-    formatting = formatflag not in files
-    compact = compactflag in files
-    if formatflag in files:
-        files.remove(formatflag)
-    if compactflag in files:
-        files.remove(compactflag)
-    if encodingflag in files:
-        encoding = files[files.index(encodingflag) + 1]
-        files.remove(encodingflag)
-        files.remove(encoding)
+    encoding = args.encoding or sys.getdefaultencoding()
+    files = args.files # sys.argv[1:]
+    formatting = args.formatting # formatflag not in files
+    compact = args.compact # compactflag in files
+    tag = args.tag # extract a tag
 
     if not files:
-        print(parsehtml(sys.stdin.read(), formatting, compact), end="")
-    for _file in files:
-        with open(_file, encoding=encoding) as rf:
-            print("from yattag import Doc")
-            print("doc, tag, text, line = Doc().ttl()")
-            basename = os.path.basename(_file)
-            name, ext = os.path.splitext(basename)
-            name = name.replace('.', '_') # periods in filename(without extension) are replaced with underscores
-            #print(f"def {name}():")
-            ss = parsehtml(rf.read(), formatting, compact)
-            print('\n'.join(ss))
-            # print(INDENTS + "return doc")
-            # with open(_file + ".yat.py", "w") as wf: wf.write(parsehtml(rf.read(), formatting, compact))
+        ss = parsehtml(sys.stdin.read(), formatting, compact)
+        print('\n'.join(ss))
+    else:
+        for _file in files:
+            _rf = Path(_file)
+            if not _rf.exists():
+                print(f"{_rf} does nott exist!")
+                continue
+            with _rf.open('r') as rf:
+                _path, file = os.path.split(_file)
+                node, ext = os.path.splitext(file)
+                if ext.lower() not in {'.html', '.htm'}:
+                    continue
+                new_node = node.replace('.', '_') # periods in filename(without extension) are replaced with underscores
+                path = Path(_path)
+                new_file = path / Path(new_node + '.py')
+                if new_file.exists():
+                    yn = input(f"{new_file} exists. Replace?(yes/no):")
+                    if not yn or yn[0].lower == 'n':
+                        continue
+                with new_file.open('w+', encoding=encoding) as wf:
+                    wf.write("from yattag import Doc\n")
+                    wf.write("doc, tag, text, line = Doc().ttl()\n")
+                    ss = parsehtml(rf.read(), formatting, compact, tag)
+                    wf.write('\n'.join(ss))
+                    wf.write('\n')
 
 
 if __name__ == "__main__":
