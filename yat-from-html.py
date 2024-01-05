@@ -185,19 +185,19 @@ def do_with(do_list: List[Tuple[int, str]],
             nprint(depth, code)
         elif len(children) == 1 and isinstance(children[0], NavigableString):
             code = f'line("{tag.name}", '
+            code_end = f', {params})' if params else ')'
             child = children[0].lstrip('\n').strip('\n')
             if child.find('\n') > 0:
                 cc = child.split('\n')
                 code += 3 * SQT
-                nprint(depth + 1, code)
+                nprint(depth, code)
                 for i, c in enumerate(cc):
                     if i == len(cc) - 1:
                         break
                     nprint(0, c)
-                nprint(0, c + 3 * SQT + ')')
+                nprint(0, c + 3 * SQT + code_end)
             else:
-                code += f', {params})' if params else ')'
-                nprint(depth, code)
+                nprint(depth, code + f'"{child}"' + code_end)
         else:
             code = f'with tag("{tag.name}"'
             code += ', ' + params + '):' if params else '):'
@@ -273,7 +273,7 @@ def main():
         for _file in files:
             _rf = Path(_file)
             if not _rf.exists():
-                print(f"{_rf} does nott exist!")
+                print(f"{_rf} does not exist!")
                 continue
             with _rf.open('r') as rf:
                 _path, file = os.path.split(_file)
@@ -283,16 +283,18 @@ def main():
                 new_node = node.replace('.', '_') # periods in filename(without extension) are replaced with underscores
                 path = Path(_path)
                 new_file = path / Path(new_node + '.py')
+                exx = True
                 if new_file.exists():
                     yn = input(f"{new_file} exists. Replace?(yes/no):")
-                    if not yn or yn[0].lower == 'n':
-                        continue
-                with new_file.open('w+', encoding=encoding) as wf:
-                    wf.write("from yattag import Doc\n")
-                    wf.write("doc, tag, text, line = Doc().ttl()\n")
-                    ss = parsehtml(rf.read(), formatting, compact, tag)
-                    wf.write('\n'.join(ss))
-                    wf.write('\n')
+                    if yn.lower() != 'yes':
+                        exx = False
+                if exx:
+                    with new_file.open('w+', encoding=encoding) as wf:
+                        wf.write("from yattag import Doc\n")
+                        wf.write("doc, tag, text, line = Doc().ttl()\n")
+                        ss = parsehtml(rf.read(), formatting, compact, tag)
+                        wf.write('\n'.join(ss))
+                        wf.write('\n')
 
 
 if __name__ == "__main__":
