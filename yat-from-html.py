@@ -3,7 +3,7 @@ import os
 import io
 import re
 import sys
-from typing import Union
+from typing import List, Union, Tuple
 
 import black  # type: ignore
 from bs4 import BeautifulSoup, Comment, Doctype, NavigableString, Tag  # type: ignore
@@ -133,26 +133,23 @@ class IndentStr:
         self.s = s
         self.end = end
 
-from typing import List
-def join_ist(lt: List[IndentStr]) -> str:
-    ss = ''
+def join_ist(lt: List[Tuple[int, str]]) -> List[str]:
+    ss = []
     for s in lt:
-        ns = ' ' * s.indent + s.s + s.end
-        ss += ns
+        ns = ' ' * s[0] + s[1] # + s.end
+        ss.append(ns)
     return ss
 
 INDENT = 2
 spc = ' '
 INDENTS = INDENT * spc
 
-def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int, indent=INDENT) -> str: # , file=sys.stdout): # , outlist: list):
-    #from unicodedata import normalize
-    ss :list[IndentStr] = [] # a list of IndentStr
+
+def do_with(do_list: List[Tuple[int, str]],
+        subtag: Union[Tag, Comment, NavigableString], depth: int, indent=INDENT) -> None:
 
     def nprint(d: int, s: str, end='\n'):
-    # ns = normalize("NFKD", s)
-        ss.append(IndentStr(s, d * indent, end))
-        # print(d * INDENTS + s, file=sio, end=end)
+        do_list.append((d * indent, s)) # , end)
 
     STN = ' \t\n'
     def do_text(tx: NavigableString, d: int):
@@ -178,22 +175,22 @@ def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int, indent=IND
 
 
     def do_tag(tag: Tag, depth: int):
-        code = "tag(" + f'"{tag.name}"'
         attrs = [format_attrs(a, tag.attrs) for a in tag.attrs] if tag.attrs else None
         params = ", ".join(attrs) if attrs else None
         children = [c for c in tag.children]
         if len(children) == 0:
-            code += ', ' + params + ')' if params else ')'
-            nprint(depth, "doc.s" + code) # doc.stag instead of tag
+            code = f'doc.stag("{tag.name}"' + f', {params})' if params else ')'
+            nprint(depth, code)
         elif len(children) == 1 and isinstance(children[0], NavigableString):
             code = f'line("{tag.name}", "{children[0]}"' 
             code += f', {params})' if params else ')'
             nprint(depth, code)
         else:
-            code += ', ' + params + ')' if params else ')'
-            nprint(depth, 'with ' + code + ":")
+            code = f'with tag("{tag.name}"'
+            code += ', ' + params + '):' if params else '):'
+            nprint(depth, code)
             for child in children:
-                do_with(child, depth + 1)
+                do_with(do_list, child, depth + 1)
 
 
     def format_attrs(a: str, attrs: dict) -> str:
@@ -204,7 +201,7 @@ def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int, indent=IND
 
 
     if isinstance(subtag, NavigableString) and only_spcs(subtag):
-            return
+            return []
     # print(depth * INDENTS, end='') # + "with tag("
     if isinstance(subtag, Tag):
         do_tag(subtag, depth)
@@ -214,25 +211,25 @@ def do_with(subtag: Union[Tag, Comment, NavigableString], depth: int, indent=IND
         do_text(subtag, depth)
     else: 
         raise ValueError("Unknown type:" + type(subtag))
-    
-    return join_ist(ss)
 
 
-def parsehtml(html: str, formatting, compact) -> str:
+def parsehtml(html: str, formatting, compact) -> List[str]:
     parser = "html.parser"
     soup = BeautifulSoup(html, parser)
     main_tag = soup.find("main")
     contents = main_tag or soup.contents
-    taglist = []
+    taglist: Tuple[int, str] = []
     for subtag in contents:
         if isinstance(subtag, NavigableString):
             if only_spcs(subtag):
                 continue
         indent = 0
-        tag = do_with(subtag, indent)
-        taglist.append(tag)
+        tags = []
+        do_with(tags, subtag, indent)
+        if len(tags) > 0:
+            taglist += tags
     # print("html = doc.getvalue()", file=out)
-    return '\n'.join(taglist)
+    return join_ist(taglist)
 
 '''
     separator = " " if compact else "\n"
@@ -274,7 +271,8 @@ def main():
             name, ext = os.path.splitext(basename)
             name = name.replace('.', '_') # periods in filename(without extension) are replaced with underscores
             #print(f"def {name}():")
-            parsehtml(rf.read(), formatting, compact)
+            ss = parsehtml(rf.read(), formatting, compact)
+            print('\n'.join(ss))
             # print(INDENTS + "return doc")
             # with open(_file + ".yat.py", "w") as wf: wf.write(parsehtml(rf.read(), formatting, compact))
 
