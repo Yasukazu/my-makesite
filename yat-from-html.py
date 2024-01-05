@@ -173,6 +173,8 @@ def do_with(do_list: List[Tuple[int, str]],
         else:
                 nprint(d, f'# {tx}')
 
+    DQT = '"'
+    SQT = "'"
 
     def do_tag(tag: Tag, depth: int):
         attrs = [format_attrs(a, tag.attrs) for a in tag.attrs] if tag.attrs else None
@@ -182,9 +184,20 @@ def do_with(do_list: List[Tuple[int, str]],
             code = f'doc.stag("{tag.name}"' + f', {params})' if params else ')'
             nprint(depth, code)
         elif len(children) == 1 and isinstance(children[0], NavigableString):
-            code = f'line("{tag.name}", "{children[0]}"' 
-            code += f', {params})' if params else ')'
-            nprint(depth, code)
+            code = f'line("{tag.name}", '
+            child = children[0].lstrip('\n').strip('\n')
+            if child.find('\n') > 0:
+                cc = child.split('\n')
+                code += 3 * SQT
+                nprint(depth + 1, code)
+                for i, c in enumerate(cc):
+                    if i == len(cc) - 1:
+                        break
+                    nprint(0, c)
+                nprint(0, c + 3 * SQT + ')')
+            else:
+                code += f', {params})' if params else ')'
+                nprint(depth, code)
         else:
             code = f'with tag("{tag.name}"'
             code += ', ' + params + '):' if params else '):'
@@ -231,13 +244,6 @@ def parsehtml(html: str, formatting, compact) -> List[str]:
     # print("html = doc.getvalue()", file=out)
     return join_ist(taglist)
 
-'''
-    separator = " " if compact else "\n"
-    htmlstr = separator.join(filter(lambda line: bool(line.strip()), out))
-    if not formatting:
-        return htmlstr
-    return black.format_file_contents(htmlstr, fast=True, mode=black.FileMode())
-'''
 
 import os
 import sys
