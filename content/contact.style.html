@@ -1,13 +1,39 @@
 <head>
+    <!--  display: flex; flex-direction: column; -->
     <style>
-        fieldset {
-            display: flex;
-            flex-direction: column;
-            gap: 1em;
-        }
-        label {
-            border: thin dotted;
-        }
+      body {
+          height: auto;
+      }
+      form {
+          padding: 1em;
+      }
+      input,
+      textarea,
+      label,
+      button {
+          width: auto;
+          padding: 0.5em;
+          margin: 1em;
+          box-sizing: border-box;
+      }
+  
+      label {
+        display: flex;
+        flex-direction: column;          border: thin dotted;
+      }
+      textarea {
+          display: block;
+          height: auto;
+          width: auto;
+          line-height: 1.5em;
+      }
+      button {
+          width: 20%;
+          display: block;
+      }
+      fieldset {
+          height: auto;
+      }
     </style>
 </head>
 <body>
