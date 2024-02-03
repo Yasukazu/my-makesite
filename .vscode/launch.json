@@ -1,0 +1,39 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Python: HTML Generator",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Python: html_generators make-site",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Python: yat-from-html ",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/yasukazu/make-site/yat-from-html.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-t","main",
+                "/home/yasukazu/make-site/content/contact.html"
+            ]
+        }
+    ]
+}
