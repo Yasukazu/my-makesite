@@ -7,7 +7,7 @@
 """Make static website/blog with Python."""
 from __future__ import annotations
 from collections.abc import Iterator
-
+from types import ModuleType
 import os
 import shutil
 import re
@@ -15,7 +15,6 @@ import glob
 import sys
 import json
 import datetime
-import pathlib
 from pathlib import Path
 
 # default directories
@@ -31,9 +30,9 @@ def get_htbuild_list():
     return list(htbuild_path.glob("*.py"))
 
 from importlib import import_module
-import htbuilder
+from htbuilder import HtmlElement
 
-def get_htbuild_contents() -> Iterator[htbuilder.HtmlElement]:
+def get_htbuild_contents() -> Iterator[HtmlElement]:
     htbuild_path = content_path / HTBUILD
     build_files = list(htbuild_path.glob("*.py"))
     build_names = [n.name for n in build_files]
@@ -43,7 +42,7 @@ def get_htbuild_contents() -> Iterator[htbuilder.HtmlElement]:
         content = import_module(node).content 
         yield content
 
-def get_htbuild_modules() -> Iterator[module]:
+def get_htbuild_modules() -> Iterator[ModuleType]:
     htbuild_path = content_path / HTBUILD
     build_files = list(htbuild_path.glob("*.py"))
     build_names = [n.name for n in build_files]
