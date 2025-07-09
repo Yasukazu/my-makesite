@@ -34,7 +34,9 @@ import glob
 import sys
 import json
 import datetime
-
+from logging import getLogger, INFO
+logger = getLogger(__file__)
+logger.setLevel(INFO)
 
 def fread(filename):
     """Read file and close the file."""
@@ -120,12 +122,12 @@ def read_content(filename):
             text = parser.convert(text)
             metadata = parser.Meta
             if metadata:
-	            for key,value in metadata.items():
-	                if len(value) == 1:
-	                    metadata[key] = value[0]
-	            content = {**content, **metadata} # merge
+                for key,value in metadata.items():
+                    if len(value) == 1:
+                        metadata[key] = value[0]
+                content = {**content, **metadata} # merge
         except ImportError as e:
-            log('WARNING: ImportError makes unable to render markdown in {}: {}', filename, str(e))
+            log('ERROR: ImportError makes unable to render markdown in {}: {}', filename, str(e))
 
     # Update the dictionary with content and RFC 2822 date.
     content.update({
@@ -187,15 +189,21 @@ def make_list(posts, dst, list_layout, item_layout, **params):
     fwrite(dst_path, output)
 
 
-def main():
+def main(site_dir='_site', param_file='params.json'):
     # Create a new _site directory from scratch.
-    if os.path.isdir('_site'):
-        shutil.rmtree('_site')
+    if os.path.isdir(site_dir):
+        y_n = input(f"{site_dir} exists. Remove it?([Y]/n)")
+        if not y_n or y_n[0].upper == 'Y':
+            shutil.rmtree(site_dir)
+            logger.info('Removed recursively directory %s', site_dir)
+        else:
+            from sys import exit
+            exit(1)
     shutil.copytree('static', '_site')
 
     # Default parameters.
     params = {
-        'base_path': '/_site',
+        'base_path': f'/{site_dir}',
         'subtitle': 'makesite test',
         'author': 'Admin',
         'site_url': 'http://localhost:8000',
@@ -203,9 +211,13 @@ def main():
     }
 
     # If params.json exists, load it.
-    if os.path.isfile('params.json'):
-        params.update(json.loads(fread('params.json')))
+    if os.path.isfile(param_file):
+        param_dic =	json.load(param_file)
+        params.update(param_dic)
+        logger.info('params are set from file: %s', param_file)
+        logger.info('params are: %s', param_dic)
 
+    breakpoint()
     # Load layouts.
     page_layout = fread('layout/page.html')
     post_layout = fread('layout/post.html')
