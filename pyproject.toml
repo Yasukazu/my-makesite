@@ -5,6 +5,16 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "domify>=0.4.7",
+    "dominate>=2.9.1",
+    "domonic>=0.9.13",
     "htmlgenerator[all]>=1.2.32",
+    "htpy>=25.7.0",
+    "markupy>=2.5.0",
     "pykakasi>=2.3.0",
+]
+
+[dependency-groups]
+dev = [
+    "ipython>=9.4.0",
 ]
