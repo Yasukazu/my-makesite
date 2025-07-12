@@ -14,7 +14,7 @@ from markdown import markdown # just for an example
 md_html = markdown(md_text)
 md_py = to_markupy(md_html).split('\n')[2] #, no_import=True) # python code
 md_comp = eval(md_py) # Component object
-md_main = Div[md_comp] # wrap with 'Main' element
+md_main = Fragment[md_comp] # wrap with 'Main' element
 
 class IndexPage(BaseLayout):
     def render_main(self):
